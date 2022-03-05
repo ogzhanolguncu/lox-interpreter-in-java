@@ -67,6 +67,12 @@ public class Scanner {
             case ',':
                 addToken(COMMA);
                 break;
+            case ':':
+                addToken(COLON);
+                break;
+            case '?':
+                addToken(QUESTION);
+                break;
             case '.':
                 addToken(DOT);
                 break;
@@ -134,19 +140,25 @@ public class Scanner {
     private void identifier() {
         while (isAlphaNumeric(peek()))
             advance();
+
+        // See if the identifier is a reserved word.
         String text = source.substring(start, current);
+
         TokenType type = keywords.get(text);
         if (type == null)
             type = IDENTIFIER;
-        addToken(IDENTIFIER);
+        addToken(type);
     }
 
     private void number() {
         while (isDigit(peek()))
             advance();
 
+        // Look for a fractional part.
         if (peek() == '.' && isDigit(peekNext())) {
+            // Consume the "."
             advance();
+
             while (isDigit(peek()))
                 advance();
         }
@@ -159,16 +171,20 @@ public class Scanner {
             if (peek() == '\n')
                 line++;
             advance();
-
-            if (isAtEnd()) {
-                Lox.error(line, "Unterminated string.");
-                return;
-            }
-            advance();
-
-            String value = source.substring(start + 1, current - 1);
-            addToken(STRING, value);
         }
+
+        // Unterminated string.
+        if (isAtEnd()) {
+            Lox.error(line, "Unterminated string.");
+            return;
+        }
+
+        // The closing ".
+        advance();
+
+        // Trim the surrounding quotes.
+        String value = source.substring(start + 1, current - 1);
+        addToken(STRING, value);
     }
 
     private boolean match(char expected) {

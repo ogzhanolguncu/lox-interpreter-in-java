@@ -3,6 +3,7 @@ package lox;
 import lox.Expr.Binary;
 import lox.Expr.Grouping;
 import lox.Expr.Literal;
+import lox.Expr.Ternary;
 import lox.Expr.Unary;
 
 public class AstPrinter implements Expr.Visitor<String> {
@@ -43,5 +44,10 @@ public class AstPrinter implements Expr.Visitor<String> {
         }
         builder.append(")");
         return builder.toString();
+    }
+
+    @Override
+    public String visitTernaryExpr(Ternary expr) {
+        return parenthesize(expr.operator.lexeme, expr.left, expr.middle, expr.right);
     }
 }
