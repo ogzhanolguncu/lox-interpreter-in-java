@@ -18,6 +18,27 @@ public class Parser {
         return equality();
     }
 
+    Expr parse() {
+        try {
+            return comma();
+        } catch (ParseError error) {
+            return null;
+        }
+    }
+
+    private Expr comma() {
+        Expr expr = expression();
+
+        while (match(COMMA)) {
+            Token operator = previous();
+            Expr right = expression();
+            expr = new Expr.Binary(expr, operator, right);
+        }
+
+        return expr;
+
+    }
+
     private Expr equality() {
         Expr expr = comparison();
 
@@ -28,14 +49,6 @@ public class Parser {
         }
 
         return expr;
-    }
-
-    Expr parse() {
-        try {
-            return expression();
-        } catch (ParseError error) {
-            return null;
-        }
     }
 
     private Expr comparison() {
@@ -96,7 +109,7 @@ public class Parser {
         }
 
         if (match(LEFT_PAREN)) {
-            Expr expr = expression();
+            Expr expr = comma();
             consume(RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
         }
