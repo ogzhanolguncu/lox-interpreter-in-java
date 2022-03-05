@@ -14,29 +14,42 @@ public class Parser {
         this.tokens = tokens;
     }
 
-    private Expr expression() {
-        return equality();
-    }
-
     Expr parse() {
         try {
-            return comma();
+            return expression();
         } catch (ParseError error) {
             return null;
         }
     }
 
-    private Expr comma() {
-        Expr expr = expression();
+    private Expr expression() {
+        return series();
+    }
+
+    private Expr series() {
+        Expr expr = conditional();
 
         while (match(COMMA)) {
             Token operator = previous();
-            Expr right = expression();
+            Expr right = conditional();
             expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
+    }
 
+    private Expr conditional() {
+        Expr expr = equality();
+
+        if (match(QUESTION)) {
+            Token question = previous();
+            Expr middle = expression();
+            consume(COLON, "Expect ':' after expression.");
+            Expr right = expression();
+            expr = new Expr.Ternary(question, expr, middle, right);
+        }
+
+        return expr;
     }
 
     private Expr equality() {
@@ -103,18 +116,16 @@ public class Parser {
             return new Expr.Literal(true);
         if (match(NIL))
             return new Expr.Literal(null);
-
         if (match(NUMBER, STRING)) {
             return new Expr.Literal(previous().literal);
-        }
 
+        }
         if (match(LEFT_PAREN)) {
-            Expr expr = comma();
+            Expr expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
         }
-
-        throw error(peek(), "Expect expression.");
+        throw error(peek(), "Expect expression");
     }
 
     private boolean match(TokenType... types) {

@@ -67,6 +67,12 @@ public class Scanner {
             case ',':
                 addToken(COMMA);
                 break;
+            case ':':
+                addToken(COLON);
+                break;
+            case '?':
+                addToken(QUESTION);
+                break;
             case '.':
                 addToken(DOT);
                 break;
