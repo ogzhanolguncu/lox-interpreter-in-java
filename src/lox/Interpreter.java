@@ -94,8 +94,13 @@ public class Interpreter implements Expr.Visitor<Object> {
 
     @Override
     public Object visitTernaryExpr(Ternary expr) {
-        // TODO Auto-generated method stub
-        return null;
+        Object left = evalute(expr.left);
+        Object middle = evalute(expr.middle);
+        Object right = evalute(expr.right);
+
+        if (isTruthy(left))
+            return middle;
+        return right;
     }
 
     @Override
