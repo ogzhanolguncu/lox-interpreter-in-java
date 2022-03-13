@@ -35,7 +35,12 @@ public class Interpreter implements Expr.Visitor<Object> {
     public Object visitBinaryExpr(Binary expr) {
         Object left = evalute(expr.left);
         Object right = evalute(expr.right);
+        System.out.println("LEFT" + left);
+        System.out.println("RIGHT" + right);
+
         switch (expr.operator.type) {
+            case COMMA: // TODO: Check here for future implementations.
+                return right;
             case GREATER:
                 checkNumberOperands(expr.operator, left, right);
                 return (double) left > (double) right;
